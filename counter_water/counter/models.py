@@ -122,7 +122,7 @@ class WaterCounter(models.Model):
 
     MAX_METERS = 12 
 
-    def add_reading(self,  meter_reading_date: date, meter_reading_value: int, max_meters: int = MAX_METERS):
+    def add_meters(self,  meter_reading_date: str, meter_reading_value: int, max_meters: int = MAX_METERS):
         new_reading = {'meter_reading_date':  meter_reading_date, 'meter_reading_value': meter_reading_value}
         self.meters.append(new_reading)
         if len(self.meters) >  max_meters:
