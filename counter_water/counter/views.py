@@ -1,16 +1,17 @@
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.exceptions import NotFound
 from django_filters import rest_framework as django_filters
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from django.db.models import Count, Q
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from django.db.models import Count
 
 from .models import ApartmentBuilding, Flat
-from .serializers import ApartmentBuildingSerializer, ApartmentBuildingListSerializer, FlatSerializer
+from .serializers import ApartmentBuildingSerializer, FlatSerializer
 
 
-class ApartmentBuildingListView(generics.ListAPIView):
-    queryset = ApartmentBuilding.objects.all()
-    serializer_class = ApartmentBuildingListSerializer
+# class ApartmentBuildingListView(generics.ListAPIView):
+#     queryset = ApartmentBuilding.objects.all()
+#     serializer_class = ApartmentBuildingListSerializer
 
 
 class FlatFilter(django_filters.FilterSet):
@@ -37,6 +38,8 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
     ordering_fields = ['flats__number']
     ordering = ['flats__number']
 
+    http_method_names = ['get']
+
     @extend_schema(
         parameters=[
             OpenApiParameter('ordering', description='Поле для сортировки, можно указать номер квартиры, например, "number" или "-number" для убывания.', required=False, type=str),
@@ -46,9 +49,9 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
 
     def get(self, request, *args, **kwargs):
         building = self.get_object()
-        
+            
         flats = Flat.objects.filter(apartment_building=building)
-        
+            
         flats_filtered = FlatFilter(request.GET, queryset=flats).qs
 
         ordering = request.GET.get('ordering', 'number')

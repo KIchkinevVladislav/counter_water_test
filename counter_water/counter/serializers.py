@@ -22,7 +22,7 @@ class ApartmentBuildingSerializer(serializers.ModelSerializer):
         fields = ['total_area', 'address', 'flats']
 
 
-class ApartmentBuildingListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ApartmentBuilding
-        fields = ['id', 'address']
+# class ApartmentBuildingListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ApartmentBuilding
+#         fields = ['id', 'address']
