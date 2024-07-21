@@ -65,7 +65,8 @@ class Flat(models.Model):
     number_of_registered = models.PositiveIntegerField(default=1, verbose_name="Количество зарегистрированных лиц")
     area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Площадь квартиры')
     apartment_building = models.ForeignKey(to=ApartmentBuilding, on_delete=models.CASCADE, verbose_name='Дом, где расположена квартира', related_name='flats')
-
+    calculations = models.JSONField(default=dict, blank=True, verbose_name="Расчеты")
+    
     def __str__(self) -> str:
         return f'Квартира № {self.number}, по адресу: {self.apartment_building.address}'
     
@@ -85,9 +86,7 @@ class Tariff(models.Model):
     """
     TYPE_TARIFF = (
         ('cold_water_for_flat', 'холодное водоснабжение в квартире'),
-        ('hot_water_for_flat', 'хорячее водоснабжение в квартире'),
-        ('cold_water_for_apartment_building', 'холодное водоснабжение для общего имущества'),
-        ('hot_water_for_apartment_building', 'хорячее водоснабжение для общего имущества'),
+        ('hot_water_for_flat', 'горячее водоснабжение в квартире'),
         ('maintenance_of_common_property', 'содержание общего имущества'),
     )
     tariff_type = models.CharField(max_length=124, choices=TYPE_TARIFF, verbose_name='Тип тарифа водоснабжения')
