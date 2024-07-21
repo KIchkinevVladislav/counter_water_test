@@ -6,8 +6,12 @@ from django_filters import rest_framework as django_filters
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 from django.db.models import Count
 
-from .models import ApartmentBuilding, Flat
-from .serializers import ApartmentBuildingSerializer, FlatSerializer, ApartmentBuildingCreateSerializer, FlatCreateSerializer
+from .models import ApartmentBuilding, Flat, WaterCounter
+from .serializers import (ApartmentBuildingSerializer, 
+                        FlatSerializer, 
+                        ApartmentBuildingCreateSerializer, 
+                        FlatCreateSerializer,
+                        WaterCounterCreateSerializer,)
 
 
 # class ApartmentBuildingListView(generics.ListAPIView):
@@ -91,13 +95,13 @@ class ApartmentBuildingCreateView(generics.CreateAPIView):
     
 
 @extend_schema(
-    request=ApartmentBuildingCreateSerializer,
+    request=FlatCreateSerializer,
     examples=[
                 OpenApiExample(
                     'Example Request',
                     value={
                         "number": 101,
-                        "number_of_registered": 2,
+                        "number_of_registered": 2, 
                         "area": "45.00",
                         "apartment_building": 1
                     }
@@ -114,3 +118,23 @@ class FlatCreateView(generics.CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+@extend_schema(
+    request=WaterCounterCreateSerializer,
+    examples=[
+                OpenApiExample(
+                    'Example Request',
+                    value={
+                        "serial_number": "1234567890",
+                        "verification_date": "2024-01-01",
+                        "type_water_counter": "cold",
+                        "apartment_building_id": 1,
+                        "flat_number": 5
+                    }
+                )
+            ]
+)
+class WaterCounterCreateView(generics.CreateAPIView):
+    queryset = WaterCounter.objects.all()
+    serializer_class = WaterCounterCreateSerializer

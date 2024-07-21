@@ -50,11 +50,35 @@ class FlatCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Number of registered must be a positive number.")
         return value
     
-    def validate_apartment_building(self, value):
-        if not ApartmentBuilding.objects.filter(id=value.id).exists():
-            raise serializers.ValidationError("Apartment building with this ID does not exist.")
-        return value
 
+class WaterCounterCreateSerializer(serializers.ModelSerializer):
+    apartment_building_id = serializers.PrimaryKeyRelatedField(queryset=ApartmentBuilding.objects.all(), write_only=True)
+    flat_number = serializers.IntegerField(write_only=True)
+
+    type_water_counter = serializers.ChoiceField(choices=WaterCounter.TYPE_COUNTER, error_messages={
+        'invalid_choice': "Invalid type of water counter. Choose from 'cold' or 'hot'."
+    })
+
+    class Meta:
+        model = WaterCounter
+        fields = ['serial_number', 'verification_date', 'type_water_counter', 'apartment_building_id', 'flat_number']
+
+    def validate(self, data):
+        apartment_building_id = data.get('apartment_building_id')
+        flat_number = data.get('flat_number')
+
+        try:
+            flat = Flat.objects.get(apartment_building_id=apartment_building_id, number=flat_number)
+            data['flat'] = flat
+        except Flat.DoesNotExist:
+            raise serializers.ValidationError("The specified flat number does not exist in the given building.")
+        
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop('apartment_building_id')
+        validated_data.pop('flat_number')
+        return super().create(validated_data)
 
 # class ApartmentBuildingListSerializer(serializers.ModelSerializer):
 #     class Meta:
