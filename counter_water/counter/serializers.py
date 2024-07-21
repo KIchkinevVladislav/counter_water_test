@@ -37,6 +37,25 @@ class ApartmentBuildingCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return ApartmentBuilding.objects.create(**validated_data)
 
+
+class FlatCreateSerializer(serializers.ModelSerializer):
+    apartment_building = serializers.PrimaryKeyRelatedField(queryset=ApartmentBuilding.objects.all())
+
+    class Meta:
+        model = Flat
+        fields = ['number', 'number_of_registered', 'area', 'apartment_building']
+
+    def validate_number_of_registered(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Number of registered must be a positive number.")
+        return value
+    
+    def validate_apartment_building(self, value):
+        if not ApartmentBuilding.objects.filter(id=value.id).exists():
+            raise serializers.ValidationError("Apartment building with this ID does not exist.")
+        return value
+
+
 # class ApartmentBuildingListSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = ApartmentBuilding
