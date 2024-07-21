@@ -1,12 +1,13 @@
 from rest_framework import generics
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from django_filters import rest_framework as django_filters
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 from django.db.models import Count
 
 from .models import ApartmentBuilding, Flat
-from .serializers import ApartmentBuildingSerializer, FlatSerializer
+from .serializers import ApartmentBuildingSerializer, FlatSerializer, ApartmentBuildingCreateSerializer
 
 
 # class ApartmentBuildingListView(generics.ListAPIView):
@@ -32,6 +33,12 @@ class FlatFilter(django_filters.FilterSet):
         return queryset
     
 
+@extend_schema(
+        parameters=[
+            OpenApiParameter('ordering', description='Поле для сортировки, можно указать номер квартиры, например, "number" или "-number" для убывания.', required=False, type=str),
+            OpenApiParameter('no_water_counters', description='Получить только те квартиры, где нет счетчиков воды', required=False, type=bool),
+        ]
+    )
 class ApartmentBuildingDetailView(generics.RetrieveAPIView):
     queryset = ApartmentBuilding.objects.all()
     serializer_class = ApartmentBuildingSerializer
@@ -39,13 +46,6 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
     ordering = ['flats__number']
 
     http_method_names = ['get']
-
-    @extend_schema(
-        parameters=[
-            OpenApiParameter('ordering', description='Поле для сортировки, можно указать номер квартиры, например, "number" или "-number" для убывания.', required=False, type=str),
-            OpenApiParameter('no_water_counters', description='Получить только те квартиры, где нет счетчиков воды', required=False, type=bool),
-        ]
-    )
 
     def get(self, request, *args, **kwargs):
         building = self.get_object()
@@ -64,3 +64,27 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
         building_data['flats'] = flat_serializer.data
 
         return Response(building_data)
+    
+
+@extend_schema(
+    request=ApartmentBuildingCreateSerializer,
+    examples=[
+                OpenApiExample(
+                    'Example Request',
+                    value={
+                        "total_area": "11252.40",
+                        "address": "Санкт-Петербург, ул. Почтамтская, д. 2/9"
+                    }
+                )
+            ]
+)
+class ApartmentBuildingCreateView(generics.CreateAPIView):
+    queryset = ApartmentBuilding.objects.all()
+    serializer_class = ApartmentBuildingCreateSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
