@@ -43,9 +43,9 @@ class TafiffAdmin(admin.ModelAdmin):
 
 @admin.register(WaterCounter)
 class WaterCounerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'serial_number', 'verification_date', 'type_water_counter', 'flat', 'tariff')
-    fields = ('serial_number', 'verification_date', 'type_water_counter', 'meters', 'flat', 'tariff')
-    list_filter = ('type_water_counter', 'flat', 'tariff', 'verification_date',)
-    search_fields = ('serial_number', 'flat__number', 'tariff', 'verification_date',)
+    list_display = ('id', 'serial_number', 'verification_date', 'type_water_counter', 'flat',)
+    fields = ('serial_number', 'verification_date', 'type_water_counter', 'meters', 'flat',)
+    list_filter = ('type_water_counter', 'flat', 'verification_date',)
+    search_fields = ('serial_number', 'flat__number', 'verification_date',)
     date_hierarchy = 'verification_date'
     ordering = ('serial_number',)

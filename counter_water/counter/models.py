@@ -1,6 +1,5 @@
 from django.db import models
 
-from datetime import date
 
 # class Address(models.Model):
 #     """
@@ -89,7 +88,7 @@ class Tariff(models.Model):
         ('hot_water_for_flat', 'хорячее водоснабжение в квартире'),
         ('cold_water_for_apartment_building', 'холодное водоснабжение для общего имущества'),
         ('hot_water_for_apartment_building', 'хорячее водоснабжение для общего имущества'),
-        ('maintenance_of_common_property', 'содержание общего имущества')
+        ('maintenance_of_common_property', 'содержание общего имущества'),
     )
     tariff_type = models.CharField(max_length=124, choices=TYPE_TARIFF, verbose_name='Тип тарифа водоснабжения')
     price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Стоимость одного кубического метра')
@@ -115,10 +114,10 @@ class WaterCounter(models.Model):
     verification_date = models.DateField(verbose_name='Дата поверки')
     # или убрать это, хотя по счетчеку понятно типу, какой у него тариф
     type_water_counter = models.CharField(max_length=8, choices=TYPE_COUNTER, verbose_name='Тип водоснабжения')
-    meters = models.JSONField(default=list, verbose_name='Показания счетчика')
+    meters = models.JSONField(default=list, null=True, blank=True,verbose_name='Показания счетчика')
     flat = models.ForeignKey(to=Flat, on_delete=models.CASCADE, verbose_name='Квартира', related_name='flat')
     # можно убрать, лишнее
-    tariff = models.ForeignKey(to=Tariff, on_delete=models.PROTECT, verbose_name='Тариф', related_name='tariff') 
+    # tariff = models.ForeignKey(to=Tariff, on_delete=models.PROTECT, verbose_name='Тариф', related_name='tariff') 
 
     MAX_METERS = 12 
 
