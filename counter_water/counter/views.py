@@ -86,13 +86,6 @@ class ApartmentBuildingCreateView(generics.CreateAPIView):
     queryset = ApartmentBuilding.objects.all()
     serializer_class = ApartmentBuildingCreateSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-    
 
 @extend_schema(
     request=FlatCreateSerializer,
@@ -111,13 +104,6 @@ class ApartmentBuildingCreateView(generics.CreateAPIView):
 class FlatCreateView(generics.CreateAPIView):
     queryset = Flat.objects.all()
     serializer_class = FlatCreateSerializer
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 @extend_schema(
