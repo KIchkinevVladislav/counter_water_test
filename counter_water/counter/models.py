@@ -64,7 +64,7 @@ class Flat(models.Model):
     # количество зарегистрированных нужно для расчета по нормативу, считаем всегда зарегистрированным собственника
     number_of_registered = models.PositiveIntegerField(default=1, verbose_name="Количество зарегистрированных лиц")
     area = models.DecimalField(max_digits=6, decimal_places=2, verbose_name='Площадь квартиры')
-    apartment_building = models.ForeignKey(to=ApartmentBuilding, on_delete=models.CASCADE, verbose_name='Дом, где расположена квартира', related_name='apartment_building')
+    apartment_building = models.ForeignKey(to=ApartmentBuilding, on_delete=models.CASCADE, verbose_name='Дом, где расположена квартира', related_name='flats')
 
     def __str__(self) -> str:
         return f'Квартира № {self.number}, по адресу: {self.apartment_building.address}'
@@ -114,8 +114,8 @@ class WaterCounter(models.Model):
     verification_date = models.DateField(verbose_name='Дата поверки')
     # или убрать это, хотя по счетчеку понятно типу, какой у него тариф
     type_water_counter = models.CharField(max_length=8, choices=TYPE_COUNTER, verbose_name='Тип водоснабжения')
-    meters = models.JSONField(default=list, null=True, blank=True,verbose_name='Показания счетчика')
-    flat = models.ForeignKey(to=Flat, on_delete=models.CASCADE, verbose_name='Квартира', related_name='flat')
+    meters = models.JSONField(default=list, null=True, blank=True, verbose_name='Показания счетчика')
+    flat = models.ForeignKey(to=Flat, on_delete=models.CASCADE, verbose_name='Квартира', related_name='water_counters')
     # можно убрать, лишнее
     # tariff = models.ForeignKey(to=Tariff, on_delete=models.PROTECT, verbose_name='Тариф', related_name='tariff') 
 
