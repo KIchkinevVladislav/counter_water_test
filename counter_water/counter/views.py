@@ -11,7 +11,8 @@ from .serializers import (ApartmentBuildingSerializer,
                         FlatSerializer, 
                         ApartmentBuildingCreateSerializer, 
                         FlatCreateSerializer,
-                        WaterCounterCreateSerializer,)
+                        WaterCounterCreateSerializer,
+                        MeterReadingSerializer,)
 
 
 # class ApartmentBuildingListView(generics.ListAPIView):
@@ -124,3 +125,30 @@ class FlatCreateView(generics.CreateAPIView):
 class WaterCounterCreateView(generics.CreateAPIView):
     queryset = WaterCounter.objects.all()
     serializer_class = WaterCounterCreateSerializer
+
+
+@extend_schema(
+    request=MeterReadingSerializer,
+    examples=[
+        OpenApiExample(
+            'Example Request',
+            value={
+                "serial_number": "1234567890",
+                "meter_reading_value": 110
+            }
+        )
+    ],
+)
+class AddMeterReadingView(generics.CreateAPIView):
+    serializer_class = MeterReadingSerializer
+
+class AddMeterReadingView(generics.CreateAPIView):
+    serializer_class = MeterReadingSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Perform the creation and return the response
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)

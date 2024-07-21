@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework import serializers
 from .models import ApartmentBuilding, Flat, WaterCounter
 
@@ -79,6 +81,29 @@ class WaterCounterCreateSerializer(serializers.ModelSerializer):
         validated_data.pop('apartment_building_id')
         validated_data.pop('flat_number')
         return super().create(validated_data)
+
+
+class MeterReadingSerializer(serializers.Serializer):
+    serial_number = serializers.CharField(max_length=10)
+    meter_reading_value = serializers.IntegerField()
+
+    def validate(self, data):
+        serial_number = data.get('serial_number')
+        try:
+            water_counter = WaterCounter.objects.get(serial_number=serial_number)
+            data['water_counter'] = water_counter
+        except WaterCounter.DoesNotExist:
+            raise serializers.ValidationError("Water counter with the specified serial number does not exist.")
+        return data
+
+    def create(self, validated_data):
+        water_counter = validated_data['water_counter']
+        meter_reading_value = validated_data['meter_reading_value']
+        meter_reading_date = datetime.date.today().strftime('%Y-%m-%d')  # Use today's date as meter reading date
+
+        water_counter.add_meters(meter_reading_date, meter_reading_value)
+        return {'serial_number': water_counter.serial_number, 'meter_reading_value': meter_reading_value}
+
 
 # class ApartmentBuildingListSerializer(serializers.ModelSerializer):
 #     class Meta:
