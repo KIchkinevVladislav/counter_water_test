@@ -60,6 +60,6 @@ http://127.0.0.1:8000/api/v1/schema/swagger-ui/#/
 
 #### Запуск тестов
 
-`docker compose exec celery_worker python manage.py test`
+`docker compose exec counter_app python manage.py test`
 
-# Тесты будут дополнены....
+###### Тесты будут дополнены....
