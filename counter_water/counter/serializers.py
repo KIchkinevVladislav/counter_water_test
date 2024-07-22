@@ -127,9 +127,3 @@ class CalculatorPaymentSerializer(serializers.Serializer):
         if not re.match(r'^(0[1-9]|1[0-2])$', value):
             raise serializers.ValidationError("Месяц должен быть в формате 'MM' (01-12).")
         return value
-
-
-# class ApartmentBuildingListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = ApartmentBuilding
-#         fields = ['id', 'address']

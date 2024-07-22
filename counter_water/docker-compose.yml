@@ -58,7 +58,6 @@ services:
       - custom
     volumes:
       - .:/app
-    # command: ["./worker-entrypoint.sh"]
     command: celery -A counter_water worker --loglevel=INFO
  
 networks:

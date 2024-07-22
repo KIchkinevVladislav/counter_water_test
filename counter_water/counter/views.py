@@ -18,11 +18,6 @@ from .calculator import get_calculation_progress
 from .task import calculate_payment_task
 
 
-# class ApartmentBuildingListView(generics.ListAPIView):
-#     queryset = ApartmentBuilding.objects.all()
-#     serializer_class = ApartmentBuildingListSerializer
-
-
 class FlatFilter(django_filters.FilterSet):
     """
     Фильтрация для возможности получения только тех квартив, в которых нет счетчиков воды

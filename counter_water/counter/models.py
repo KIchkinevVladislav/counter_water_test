@@ -1,52 +1,14 @@
 from django.db import models
 
 
-# class Address(models.Model):
-#     """
-#     Class describing the fields of the "Address" object 
-#     in the database
-#     """
-#     TYPE_STREET = (
-#         ('street', 'улица'),
-#         ('avenue', 'проспект'),
-#         ('highway', 'шоссе'),
-#     )
-
-#     locality = models.CharField(max_length=124, unique=True, verbose_name='Название населенного пункта')    
-#     street = models.CharField(max_length=15, choices=TYPE_STREET, default='street', verbose_name='Тип улицы: улица, проспект, шоссе и т.п.')
-#     name = models.CharField(max_length=124, verbose_name='Название улицы')
-#     number = models.PositiveIntegerField(verbose_name='Номер дома')
-#     housing = models.PositiveIntegerField(null = True, blank=True, verbose_name='Номер корпус')
-#     letter = models.CharField(max_length=1, null=True, blank=True, verbose_name='Литера дома')
-
-#     def __str__(self) -> str:
-#         street_display = self.get_street_display()
-#         if self.housing and self.letter is not None:
-#             return f'{street_display} {self.name} № {self.number} корпус {self.housing} литера {self.letter}'
-#         elif self.housing is None:
-#             return f'{street_display} {self.name} № {self.number} литера {self.letter}'
-#         elif self.letter is None:
-#             return f'{street_display} {self.name} № {self.number} корпус {self.housing}'
-#         else:
-#             return f'{street_display} {self.name} № {self.number}'
-
-
-#     class Meta():
-#         verbose_name = 'Адрес'
-#         verbose_name_plural = 'Адреса'
-
-
 class ApartmentBuilding(models.Model):
     """
     Class describing the fields of the "ApartmentBuilding" object 
     in the database
     """
     total_area = models.DecimalField(max_digits=8, decimal_places=2, verbose_name='Общая площадь дома')
-    # address = models.ForeignKey(to=Address, on_delete=models.PROTECT, verbose_name='Адрес дома', related_name='address')
     address = models.CharField(max_length=256, unique=True, verbose_name='Адрес дома')
 
-    # def __str__(self) -> str:
-    #     return f'Многоквартирный жилой дом, расположенный по адресу: {self.address.__str__()}'
     def __str__(self) -> str:
         return f'Многоквартирный жилой дом, расположенный по адресу: {self.address}'    
     
@@ -111,12 +73,9 @@ class WaterCounter(models.Model):
     )
     serial_number = models.CharField(max_length=10, verbose_name='Серийный номер счетчика')
     verification_date = models.DateField(verbose_name='Дата поверки')
-    # или убрать это, хотя по счетчеку понятно типу, какой у него тариф
     type_water_counter = models.CharField(max_length=8, choices=TYPE_COUNTER, verbose_name='Тип водоснабжения')
     meters = models.JSONField(default=list, null=True, blank=True, verbose_name='Показания счетчика')
     flat = models.ForeignKey(to=Flat, on_delete=models.CASCADE, verbose_name='Квартира', related_name='water_counters')
-    # можно убрать, лишнее
-    # tariff = models.ForeignKey(to=Tariff, on_delete=models.PROTECT, verbose_name='Тариф', related_name='tariff') 
 
     MAX_METERS = 12 
 

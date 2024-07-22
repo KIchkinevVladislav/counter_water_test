@@ -8,7 +8,6 @@ env = environ.Env(
     SECRET_KEY=(str, 'django-insecure-6r&v9n+3mmdg2hv7!+2h99cf+gz=765g5&_2r=q(r%b7sn=d2l'),
     DOMAIN_NAME=(str, 'http://127.0.0.1:8000'),
 
-# поменять для докера на нелокальные
     DATABASE_NAME=(str, 'postgres'),
     DATABASE_USER=(str, 'postgres'),
     DATABASE_PASSWORD=(str, 'postgres'),
