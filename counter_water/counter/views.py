@@ -1,7 +1,7 @@
-from rest_framework import generics
 from rest_framework import status
+from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound
 from django_filters import rest_framework as django_filters
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 from django.db.models import Count
@@ -12,7 +12,9 @@ from .serializers import (ApartmentBuildingSerializer,
                         ApartmentBuildingCreateSerializer, 
                         FlatCreateSerializer,
                         WaterCounterCreateSerializer,
-                        MeterReadingSerializer,)
+                        MeterReadingSerializer,
+                        CalculatorPaymentSerializer,)
+from .calculator import calculator_payment
 
 
 # class ApartmentBuildingListView(generics.ListAPIView):
@@ -39,6 +41,7 @@ class FlatFilter(django_filters.FilterSet):
     
 
 @extend_schema(
+        description='Получение данны о доме, находящихся в нем квартирах и переданных показаниях',
         parameters=[
             OpenApiParameter('ordering', description='Поле для сортировки, можно указать номер квартиры, например, "number" или "-number" для убывания.', required=False, type=str),
             OpenApiParameter('no_water_counters', description='Получить только те квартиры, где нет счетчиков воды', required=False, type=bool),
@@ -73,6 +76,7 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
 
 @extend_schema(
     request=ApartmentBuildingCreateSerializer,
+    description='Внесение в бд записи об объекте многоквартирного жилого дома',
     examples=[
                 OpenApiExample(
                     'Example Request',
@@ -90,6 +94,7 @@ class ApartmentBuildingCreateView(generics.CreateAPIView):
 
 @extend_schema(
     request=FlatCreateSerializer,
+    description='Внесение в бд записи об объекте квартиры',
     examples=[
                 OpenApiExample(
                     'Example Request',
@@ -109,6 +114,7 @@ class FlatCreateView(generics.CreateAPIView):
 
 @extend_schema(
     request=WaterCounterCreateSerializer,
+    description='Внесение в бд записи о счетчике',
     examples=[
                 OpenApiExample(
                     'Example Request',
@@ -129,6 +135,7 @@ class WaterCounterCreateView(generics.CreateAPIView):
 
 @extend_schema(
     request=MeterReadingSerializer,
+    description='Передача показаний счетчика воды',
     examples=[
         OpenApiExample(
             'Example Request',
@@ -142,13 +149,32 @@ class WaterCounterCreateView(generics.CreateAPIView):
 class AddMeterReadingView(generics.CreateAPIView):
     serializer_class = MeterReadingSerializer
 
-class AddMeterReadingView(generics.CreateAPIView):
-    serializer_class = MeterReadingSerializer
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        # Perform the creation and return the response
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+@extend_schema(
+    request=CalculatorPaymentSerializer,
+    description='Расчет платы за водоснабжение и содержание общего имущества. В настоящее время расчет возможен только для 2024 года',
+    examples=[
+        OpenApiExample(
+            'Example Request',
+            value={
+                "apartment_building_id": 1,
+                "year": "2024",
+                "month": "07"
+            }
+        )
+    ],
+)
+class CalculatePaymenttView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CalculatorPaymentSerializer(data=request.data)
+        if serializer.is_valid():
+            apartment_building_id = serializer.validated_data['apartment_building_id']
+            year = serializer.validated_data['year']
+            month = serializer.validated_data['month']
+            
+            response = calculator_payment(apartment_building_id, year, month)
+            
+            return Response(response, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

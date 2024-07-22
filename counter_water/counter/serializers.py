@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from rest_framework import serializers
 from .models import ApartmentBuilding, Flat, WaterCounter
@@ -103,6 +104,29 @@ class MeterReadingSerializer(serializers.Serializer):
 
         water_counter.add_meters(meter_reading_date, meter_reading_value)
         return {'serial_number': water_counter.serial_number, 'meter_reading_value': meter_reading_value}
+
+
+class CalculatorPaymentSerializer(serializers.Serializer):
+    apartment_building_id = serializers.IntegerField()
+    year = serializers.CharField(max_length=4)
+    month = serializers.CharField(max_length=2)
+
+    def validate_apartment_building_id(self, value):
+        if not ApartmentBuilding.objects.filter(id=value).exists():
+            raise serializers.ValidationError("Дом с указанным ID не существует.")
+        return value
+
+    def validate_year(self, value):
+        if not re.match(r'^\d{4}$', value):
+            raise serializers.ValidationError("Год должен быть в формате 'YYYY'.")
+        if value != '2024':
+            raise serializers.ValidationError("Расчет доступен только для 2024 года.")
+        return value
+
+    def validate_month(self, value):
+        if not re.match(r'^(0[1-9]|1[0-2])$', value):
+            raise serializers.ValidationError("Месяц должен быть в формате 'MM' (01-12).")
+        return value
 
 
 # class ApartmentBuildingListSerializer(serializers.ModelSerializer):
