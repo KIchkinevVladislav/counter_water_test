@@ -8,11 +8,15 @@ env = environ.Env(
     SECRET_KEY=(str, 'django-insecure-6r&v9n+3mmdg2hv7!+2h99cf+gz=765g5&_2r=q(r%b7sn=d2l'),
     DOMAIN_NAME=(str, 'http://127.0.0.1:8000'),
 
+# поменять для докера на нелокальные
     DATABASE_NAME=(str, 'postgres'),
     DATABASE_USER=(str, 'postgres'),
     DATABASE_PASSWORD=(str, 'postgres'),
     DATABASE_HOST=(str, 'localhost'),
     DATABASE_PORT=(str, '5432'),
+
+    REDIS_HOST=(str, '127.0.0.1'),
+    REDIS_PORT=(str, '6379'),
 )
 
 
@@ -76,6 +80,21 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'counter_water.wsgi.application'
+
+REDIS_HOST = env('REDIS_HOST')
+REDIS_PORT = env('REDIS_PORT')
+
+# Caches
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
 
 # Database
@@ -151,3 +170,8 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+# Celery
+
+CELERY_BROKER_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+CELERY_RESULT_BACKEND = f'redis://{REDIS_HOST}:{REDIS_PORT}'

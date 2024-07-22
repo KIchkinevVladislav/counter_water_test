@@ -4,7 +4,8 @@ from .views import (ApartmentBuildingDetailView,
                     FlatCreateView,
                     WaterCounterCreateView,
                     AddMeterReadingView,
-                    CalculatePaymenttView)
+                    CalculatePaymentView,
+                    CalculationProgressView,)
 
 app_name = 'counter'
 
@@ -15,7 +16,8 @@ urlpatterns = [
     path('create/flat/', FlatCreateView.as_view(), name='flat-create'),
     path('create/water_counter/', WaterCounterCreateView.as_view(), name='water_counter_create'),
     path('add-meter-reading', AddMeterReadingView.as_view(), name='add_meter_reading'),
-    path('calculate-payment', CalculatePaymenttView.as_view(), name='calculate_payment'),
+    path('calculate-payment', CalculatePaymentView.as_view(), name='calculate_payment'),
+    path('calculate-progress/<int:apartment_building_id>/', CalculationProgressView.as_view(), name='calculate_progress'),
 ]
 
 

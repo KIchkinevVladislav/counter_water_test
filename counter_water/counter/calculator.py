@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
+import time
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 
 from .models import Flat, Tariff
 
@@ -13,6 +15,14 @@ NORM_HOT_WATER = Decimal(4.745)
 def calculator_payment(apartment_building_id: int, year: str, month: str):
     try:
         flats = Flat.objects.filter(apartment_building_id=apartment_building_id)
+
+        # реализуем храние прогресса в кэше
+        total_flats = flats.count()
+        progress = {
+            'total': total_flats,
+            'completed': 0
+        }
+        save_calculation_progress(apartment_building_id, progress)
 
         tariff_common = Tariff.objects.get(tariff_type='maintenance_of_common_property')
         tariff_cold_water = Tariff.objects.get(tariff_type='cold_water_for_flat')
@@ -27,9 +37,10 @@ def calculator_payment(apartment_building_id: int, year: str, month: str):
         year_month_key = f"{year}-{month.zfill(2)}"
 
         for flat in flats:
-            if flat.calculations and year_month_key in flat.calculations:
-                return {"status": "error", "message": f"Расчеты для {year_month_key} уже проведены для квартир в этом доме."}
             
+            if flat.calculations and year_month_key in flat.calculations:
+                continue
+
             # расчет платы за содержание имущества
             maintenance_cost = flat.area * maintenance_cost_per_square_meter
 
@@ -132,10 +143,25 @@ def calculator_payment(apartment_building_id: int, year: str, month: str):
                 flat.calculations[year_month_key] = calculation_data[year_month_key]
 
             flat.save()
+            progress['completed'] += 1
+            save_calculation_progress(apartment_building_id, progress)
 
-        return {"status": "success", "message": "Расчеты успешно обновлены."}            
-    
     except ObjectDoesNotExist as e:
         return {"status": "error", "message": str(e)}    
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+def save_calculation_progress(apartment_building_id, progress):
+    cache_key = f"calculation_progress_{apartment_building_id}"
+    cache.set(cache_key, progress, timeout=60)
+
+
+def get_calculation_progress(apartment_building_id):
+    cache_key = f"calculation_progress_{apartment_building_id}"
+    progress = cache.get(cache_key)
+    if progress:
+        return progress
+    else:
+        return {"status": "error", "message": "No progress found."}
+    

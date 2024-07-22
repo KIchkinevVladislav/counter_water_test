@@ -3,7 +3,7 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django_filters import rest_framework as django_filters
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from django.db.models import Count
 
 from .models import ApartmentBuilding, Flat, WaterCounter
@@ -14,7 +14,8 @@ from .serializers import (ApartmentBuildingSerializer,
                         WaterCounterCreateSerializer,
                         MeterReadingSerializer,
                         CalculatorPaymentSerializer,)
-from .calculator import calculator_payment
+from .calculator import get_calculation_progress
+from .task import calculate_payment_task
 
 
 # class ApartmentBuildingListView(generics.ListAPIView):
@@ -164,17 +165,32 @@ class AddMeterReadingView(generics.CreateAPIView):
         )
     ],
 )
-class CalculatePaymenttView(APIView):
-    def post(self, request, *args, **kwargs):
+class CalculatePaymentView(APIView):
+    def post(self, request):
         serializer = CalculatorPaymentSerializer(data=request.data)
         if serializer.is_valid():
             apartment_building_id = serializer.validated_data['apartment_building_id']
             year = serializer.validated_data['year']
             month = serializer.validated_data['month']
             
-            response = calculator_payment(apartment_building_id, year, month)
+            # Запускаем задачу в Celery
+            calculate_payment_task.delay(apartment_building_id, year, month)
             
-            return Response(response, status=status.HTTP_200_OK)
+            return Response({"status": "success", "message": "Расчет запущен."}, status=status.HTTP_202_ACCEPTED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+@extend_schema(
+    description='Получение данных о прогрессе расчета кварплаты. Передайте ID дома, для которого запущен расчет',
+)
+class CalculationProgressView(APIView):
+    def get(self, request, apartment_building_id, *args, **kwargs):
+        if not ApartmentBuilding.objects.filter(id=apartment_building_id).exists():
+            return Response({"status": "error", "message": "Apartment building with this ID does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        
+        progress = get_calculation_progress(apartment_building_id)
+        if isinstance(progress, dict) and 'status' in progress and progress['status'] == 'error':
+            return Response(progress, status=status.HTTP_404_NOT_FOUND)
+        
+        return Response(progress, status=status.HTTP_200_OK)
