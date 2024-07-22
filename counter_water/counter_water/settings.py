@@ -12,10 +12,10 @@ env = environ.Env(
     DATABASE_NAME=(str, 'postgres'),
     DATABASE_USER=(str, 'postgres'),
     DATABASE_PASSWORD=(str, 'postgres'),
-    DATABASE_HOST=(str, 'localhost'),
+    DATABASE_HOST=(str, 'db'),
     DATABASE_PORT=(str, '5432'),
 
-    REDIS_HOST=(str, '127.0.0.1'),
+    REDIS_HOST=(str, 'redis'),
     REDIS_PORT=(str, '6379'),
 )
 
