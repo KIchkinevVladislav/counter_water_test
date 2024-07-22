@@ -27,7 +27,7 @@ class ApartmentBuildingAdmin(admin.ModelAdmin):
 class FlatAdmin(admin.ModelAdmin): 
     inlines = [WaterCounterInline]   
     list_display = ('id', 'number', 'area', 'apartment_building')
-    fields = ('number', 'area', 'apartment_building', 'number_of_registered')
+    fields = ('number', 'area', 'apartment_building', 'number_of_registered', 'calculations')
     list_filter = ('apartment_building',)
     search_fields = ('number', 'apartment_building__address')
     ordering = ('number',)
