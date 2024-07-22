@@ -1,0 +1,1 @@
+[{"model": "counter.tariff", "pk": 1, "fields": {"tariff_type": "maintenance_of_common_property", "price": "64.15"}}, {"model": "counter.tariff", "pk": 2, "fields": {"tariff_type": "cold_water_for_flat", "price": "36.54"}}, {"model": "counter.tariff", "pk": 3, "fields": {"tariff_type": "hot_water_for_flat", "price": "112.81"}}]
