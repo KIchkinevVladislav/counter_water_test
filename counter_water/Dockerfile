@@ -23,8 +23,4 @@ RUN chmod +x server-entrypoint.sh
 
 RUN chmod +x load_fixtures.sh
 
-RUN chmod +x worker-entrypoint.sh
-
 EXPOSE 8000
-
-# CMD ["./server-entrypoint.sh"]
