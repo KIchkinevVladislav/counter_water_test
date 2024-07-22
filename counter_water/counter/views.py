@@ -37,6 +37,7 @@ class FlatFilter(django_filters.FilterSet):
     
 
 @extend_schema(
+        tags=['Data'],
         description='Получение данны о доме, находящихся в нем квартирах и переданных показаниях',
         parameters=[
             OpenApiParameter('ordering', description='Поле для сортировки, можно указать номер квартиры, например, "number" или "-number" для убывания.', required=False, type=str),
@@ -71,6 +72,7 @@ class ApartmentBuildingDetailView(generics.RetrieveAPIView):
     
 
 @extend_schema(
+    tags=['Data'],
     request=ApartmentBuildingCreateSerializer,
     description='Внесение в бд записи об объекте многоквартирного жилого дома',
     examples=[
@@ -89,6 +91,7 @@ class ApartmentBuildingCreateView(generics.CreateAPIView):
 
 
 @extend_schema(
+    tags=['Data'],
     request=FlatCreateSerializer,
     description='Внесение в бд записи об объекте квартиры',
     examples=[
@@ -109,6 +112,7 @@ class FlatCreateView(generics.CreateAPIView):
 
 
 @extend_schema(
+    tags=['Data'],
     request=WaterCounterCreateSerializer,
     description='Внесение в бд записи о счетчике',
     examples=[
@@ -130,6 +134,7 @@ class WaterCounterCreateView(generics.CreateAPIView):
 
 
 @extend_schema(
+    tags=['Data'],
     request=MeterReadingSerializer,
     description='Передача показаний счетчика воды',
     examples=[
@@ -147,6 +152,7 @@ class AddMeterReadingView(generics.CreateAPIView):
 
 
 @extend_schema(
+    tags=['Calculator'],
     request=CalculatorPaymentSerializer,
     description='Расчет платы за водоснабжение и содержание общего имущества. В настоящее время расчет возможен только для 2024 года',
     examples=[
@@ -177,6 +183,7 @@ class CalculatePaymentView(APIView):
 
 
 @extend_schema(
+    tags=['Calculator'],
     description='Получение данных о прогрессе расчета кварплаты. Передайте ID дома, для которого запущен расчет',
 )
 class CalculationProgressView(APIView):
